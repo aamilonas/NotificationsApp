@@ -12,17 +12,19 @@ struct NotificationSection: Identifiable {
     var isExpanded: Bool
     var startMinutes: Double = 1
     var endMinutes: Double = 15
-    var selectedFromOption = "Men"
+    var selectedFromOption = "Women"
     var selectedSound = "iMessage"
-    var selectedIntensity = "Low"
+    var selectedIntensity = "Off"
 }
+
+
 
 struct NotificationSectionView: View {
     @Binding var section: NotificationSection
     
-    let fromOptions = ["Men", "Women", "Mostly Men", "Mostly Women", "Jealous Ex"]
+    let fromOptions = ["Women", "Men", "Mostly Women", "Mostly Men",   "Jealous Ex (Woman)", "Jealous Ex (Man)"]
     let soundOptions = ["iMessage", "Tinder", "Instagram", "Snapchat", "Hinge"]
-    let intensityOptions = ["Low", "Med", "High"]
+    let intensityOptions = ["Off", "Low", "High"]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -53,36 +55,48 @@ struct NotificationSectionView: View {
                         )
                     }
                     
+                    Divider()
+                        .frame(height: 1)
+                        .background(Color.gray.opacity(0.1))
+
                     // From Dropdown
-                    VStack(alignment: .leading) {
+                    HStack {
                         Text("From")
                             .font(.subheadline)
+
                         Picker("From", selection: $section.selectedFromOption) {
                             ForEach(fromOptions, id: \.self) { option in
-                                Text(option).tag(option)
+                                Text("\(emojiFor(option)) \(option)")
+                                    .tag(option)
                             }
                         }
                         .pickerStyle(MenuPickerStyle())
+
                     }
-                    
+                    Divider()
+                        .frame(height: 1)
+                        .background(Color.gray.opacity(0.1))
+
                     // Sound Dropdown
-                    VStack(alignment: .leading) {
+                    HStack {
                         Text("Sound")
                             .font(.subheadline)
+
                         Picker("Sound", selection: $section.selectedSound) {
                             ForEach(soundOptions, id: \.self) { option in
-                                HStack {
-                                    Image(systemName: "music.note")
-                                    Text(option)
-                                }
-                                .tag(option)
+                                Text("\(emojiForSound(option)) \(option)")
+                                    .tag(option)
                             }
                         }
                         .pickerStyle(MenuPickerStyle())
                     }
-                    
+
+                    Divider()
+                        .frame(height: 1)
+                        .background(Color.gray.opacity(0.1))
+
                     // Intensity Radio Buttons
-                    VStack(alignment: .leading) {
+                    HStack() {
                         Text("Intensity")
                             .font(.subheadline)
                         HStack(spacing: 20) {
@@ -108,3 +122,35 @@ struct NotificationSectionView: View {
         .shadow(radius: 2)
     }
 }
+
+
+func emojiFor(_ option: String) -> String {
+    switch option {
+    case "Men":
+        return "🙎‍♂️"
+    case "Women":
+        return "🙎‍♀️"
+    case "Mostly Men":
+        return "👬"
+    case "Mostly Women":
+        return "👯‍♀️"
+    case "Jealous Ex (Woman)":
+        return "❤️‍🔥"
+    case "Jealous Ex (Man)":
+            return "🫀"
+    default:
+        return "❓"
+    }
+}
+
+func emojiForSound(_ option: String) -> String {
+    switch option {
+    case "iMessage": return "💬"
+    case "Tinder": return "❣️"
+    case "Instagram": return "🌄"
+    case "Snapchat": return "👻"
+    case "Hinge": return "☁️"
+    default: return "🎵"
+    }
+}
+

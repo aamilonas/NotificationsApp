@@ -10,29 +10,60 @@ import SwiftUI
 struct NotificationsView: View {
     @State private var notifications: [NotificationSection] = [
         NotificationSection(id: 0, isExpanded: true),
-        NotificationSection(id: 1, isExpanded: true)
+        NotificationSection(id: 1, isExpanded: false)
     ]
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    ForEach($notifications) { $section in
-                        NotificationSectionView(section: $section)
-                    }
+        
+        VStack{
+            ZStack {
+                // Black shadow layer (bottom)
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black)
+                    .offset(x: 4, y: 4)
+                    .frame(width: 353, height: 64)
+                // Gives that bottom-right shadow effect
+                
+                // Gray background layer (top)
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemGray5))
+                    .frame(width: 353, height: 64)
+                
+                // Content: Text + Icon
+                HStack(spacing: 8) {
+                    Text("Fake Notifications ")
+                        .font(.system(size: 28))
+                        .fontWeight(.bold)
                     
-                    Button(action: {
-                        notifications.append(NotificationSection(id: notifications.count, isExpanded: true))
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 44))
-                            .foregroundColor(.blue)
-                    }
-                    .padding()
+                    Image(systemName: "bubble.left")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
                 }
-                .padding()
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
             }
-            .navigationTitle("Fake Notifications").font(.title)
+            .padding(.bottom,10)
+
+                
+            NavigationView {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        ForEach($notifications) { $section in
+                            NotificationSectionView(section: $section)
+                        }
+                        
+                        Button(action: {
+                            notifications.append(NotificationSection(id: notifications.count, isExpanded: true))
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 44))
+                                .foregroundColor(.blue)
+                        }
+                        .padding()
+                    }
+                }
+            }
         }
     }
 }
