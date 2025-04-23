@@ -12,19 +12,18 @@ struct NotificationSection: Identifiable {
     var isExpanded: Bool
     var startMinutes: Double = 1
     var endMinutes: Double = 15
-    var selectedFromOption = "Women"
+    var selectedFromOption = "Mostly Women"
     var selectedSound = "iMessage"
-    var selectedIntensity = "Off"
+    var selectedEmoji = "Off"
 }
-
-
 
 struct NotificationSectionView: View {
     @Binding var section: NotificationSection
+        var onRemove: () -> Void
     
-    let fromOptions = ["Women", "Men", "Mostly Women", "Mostly Men",   "Jealous Ex (Woman)", "Jealous Ex (Man)"]
+    let fromOptions = ["Women", "Men", "Mostly Women", "Mostly Men", "Jealous Ex (Woman)", "Jealous Ex (Man)"]
     let soundOptions = ["iMessage", "Tinder", "Instagram", "Snapchat", "Hinge"]
-    let intensityOptions = ["Off", "Low", "High"]
+    let emojiOptions = ["Off", "Med", "High"]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -55,15 +54,10 @@ struct NotificationSectionView: View {
                         )
                     }
                     
-                    Divider()
-                        .frame(height: 1)
-                        .background(Color.gray.opacity(0.1))
-
                     // From Dropdown
                     HStack {
                         Text("From")
                             .font(.subheadline)
-
                         Picker("From", selection: $section.selectedFromOption) {
                             ForEach(fromOptions, id: \.self) { option in
                                 Text("\(emojiFor(option)) \(option)")
@@ -71,17 +65,14 @@ struct NotificationSectionView: View {
                             }
                         }
                         .pickerStyle(MenuPickerStyle())
-
                     }
+                    
                     Divider()
-                        .frame(height: 1)
-                        .background(Color.gray.opacity(0.1))
-
+                    
                     // Sound Dropdown
                     HStack {
                         Text("Sound")
                             .font(.subheadline)
-
                         Picker("Sound", selection: $section.selectedSound) {
                             ForEach(soundOptions, id: \.self) { option in
                                 Text("\(emojiForSound(option)) \(option)")
@@ -90,67 +81,75 @@ struct NotificationSectionView: View {
                         }
                         .pickerStyle(MenuPickerStyle())
                     }
-
+                    
                     Divider()
-                        .frame(height: 1)
-                        .background(Color.gray.opacity(0.1))
-
-                    // Intensity Radio Buttons
-                    HStack() {
-                        Text("Intensity")
+                    
+                    // Emoji Radio Buttons
+                    HStack {
+                        Text("Emojis")
                             .font(.subheadline)
+                        
                         HStack(spacing: 20) {
-                            ForEach(intensityOptions, id: \.self) { intensity in
+                            ForEach(emojiOptions, id: \.self) { emoji in
                                 Button(action: {
-                                    section.selectedIntensity = intensity
+                                    section.selectedEmoji = emoji
                                 }) {
-                                    HStack {
-                                        Image(systemName: section.selectedIntensity == intensity ? "largecircle.fill.circle" : "circle")
-                                            .foregroundColor(section.selectedIntensity == intensity ? .blue : .gray)
-                                        Text(intensity)
+                                    HStack(spacing: 6) {
+                                        Circle()
+                                            .stroke(section.selectedEmoji == emoji ? Color.blue : Color.gray, lineWidth: 2)
+                                            .frame(width: 20, height: 20)
+                                            .overlay(
+                                                Circle()
+                                                    .fill(section.selectedEmoji == emoji ? Color.blue : Color.clear)
+                                                    .frame(width: 10, height: 10)
+                                            )
+                                        
+                                        Text(emoji)
+                                            .foregroundColor(.primary)
                                     }
                                 }
+                                .buttonStyle(PlainButtonStyle()) // Optional: prevents default button tint
                             }
                         }
                     }
+
                 }
+                Divider()
+                Button("Remove Section") {
+                    onRemove()
+                }.foregroundColor(.red)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    
             }
+
         }
         .padding()
         .background(Color(.systemBackground))
         .cornerRadius(12)
         .shadow(radius: 2)
     }
-}
-
-
-func emojiFor(_ option: String) -> String {
-    switch option {
-    case "Men":
-        return "🙎‍♂️"
-    case "Women":
-        return "🙎‍♀️"
-    case "Mostly Men":
-        return "👬"
-    case "Mostly Women":
-        return "👯‍♀️"
-    case "Jealous Ex (Woman)":
-        return "❤️‍🔥"
-    case "Jealous Ex (Man)":
-            return "🫀"
-    default:
-        return "❓"
+    
+    private func emojiFor(_ option: String) -> String {
+        switch option {
+        case "Women": return "👩"
+        case "Men": return "👨"
+        case "Mostly Women": return "👯‍♀️"
+        case "Mostly Men": return "👨‍👨‍👦‍👦"
+        case "Jealous Ex (Woman)": return "👿"
+        case "Jealous Ex (Man)": return "👿"
+        default: return ""
+        }
     }
-}
-
-func emojiForSound(_ option: String) -> String {
-    switch option {
-    case "iMessage": return "💬"
-    case "Tinder": return "❣️"
-    case "Instagram": return "🌄"
-    case "Snapchat": return "👻"
-    case "Hinge": return "☁️"
-    default: return "🎵"
+    
+    private func emojiForSound(_ option: String) -> String {
+        switch option {
+        case "iMessage": return "💬"
+        case "Tinder": return "❣️"
+        case "Instagram": return "📸"
+        case "Snapchat": return "👻"
+        case "Hinge": return "☁️"
+        default: return ""
+        }
     }
 }
 

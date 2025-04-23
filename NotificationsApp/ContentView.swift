@@ -1,30 +1,48 @@
-//
-//  ContentView.swift
-//  NotificationsApp
-//
-//  Created by Angelo Milonas on 4/20/25.
-//
-
 import SwiftUI
+import AVFoundation
 
 struct ContentView: View {
-    @State private var selectedTab = 0
-    
+    @State private var isPlaying = false
+    @State private var player: AVAudioPlayer?
+
     var body: some View {
-        TabView(selection: $selectedTab) {
+        ZStack(alignment: .bottom) {
+            // Main screen
             NotificationsView()
-                .tabItem {
-                    Image(systemName: "list.bullet")
-                    Text("Menu")
+
+            // Play/Stop toggle button
+            Button(action: {
+                withAnimation(.spring()) {
+                    isPlaying.toggle()
+                    playSound(named: isPlaying ? "play" : "stop")
                 }
-                .tag(0)
-            
-            ChatView()
-                .tabItem {
-                    Image(systemName: "message")
-                    Text("Chat")
+            }) {
+                HStack {
+                    Image(systemName: isPlaying ? "stop.fill" : "play.fill")
+                        .foregroundColor(.white)
+                    Text(isPlaying ? "STOP" : "Play")
+                        .foregroundColor(.white)
+                        .fontWeight(.semibold)
                 }
-                .tag(1)
+                .frame(width: 323, height: 48)
+                .background(isPlaying ? Color.red : Color.green)
+                .cornerRadius(24)
+                .shadow(radius: 5)
+            }
+            .padding(.bottom, 30)
+        }
+        .ignoresSafeArea(edges: .bottom)
+    }
+
+    // Sound playback logic (optional)
+    func playSound(named name: String) {
+        if let url = Bundle.main.url(forResource: name, withExtension: "mp3") {
+            do {
+                player = try AVAudioPlayer(contentsOf: url)
+                player?.play()
+            } catch {
+                print("Error playing sound: \(error.localizedDescription)")
+            }
         }
     }
 }

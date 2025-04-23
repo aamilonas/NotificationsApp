@@ -4,7 +4,6 @@
 //
 //  Created by Angelo Milonas on 4/20/25.
 //
-
 import SwiftUI
 
 struct NotificationsView: View {
@@ -15,14 +14,13 @@ struct NotificationsView: View {
     
     var body: some View {
         
-        VStack{
+        VStack {
             ZStack {
                 // Black shadow layer (bottom)
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.black)
                     .offset(x: 4, y: 4)
                     .frame(width: 353, height: 64)
-                // Gives that bottom-right shadow effect
                 
                 // Gray background layer (top)
                 RoundedRectangle(cornerRadius: 12)
@@ -43,14 +41,24 @@ struct NotificationsView: View {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
             }
-            .padding(.bottom,10)
-
-                
+            .padding(.bottom, 10)
+            
             NavigationView {
                 ScrollView {
                     VStack(spacing: 20) {
-                        ForEach($notifications) { $section in
-                            NotificationSectionView(section: $section)
+                        ForEach(notifications.indices, id: \.self) { index in
+                            NotificationSectionView(
+                                section: $notifications[index],
+                                onRemove: {
+                                    notifications.remove(at: index)
+                                }
+                            )
+                            
+                            if index < notifications.count - 1 {
+                                Divider()
+                                    .frame(height: 1)
+                                    .background(Color.gray.opacity(0.3))
+                            }
                         }
                         
                         Button(action: {
@@ -62,6 +70,7 @@ struct NotificationsView: View {
                         }
                         .padding()
                     }
+                    .padding()
                 }
             }
         }
