@@ -15,6 +15,8 @@ struct NotificationSectionView: View {
     var isDisabled: Bool
     var onRemove: () -> Void
 
+    @State private var showingSettings = false
+
     let fromOptions = ["Women", "Men", "Women (Friends)", "Men (Friends)", "Jealous Ex (Woman)", "Jealous Ex (Man)"]
     let soundOptions = ["iMessage", "Tinder", "Instagram", "Snapchat"]
     let emojiOptions = ["Off", "Med", "High"]
@@ -54,35 +56,53 @@ struct NotificationSectionView: View {
 
             if section.isExpanded {
                 VStack(alignment: .leading, spacing: 16) {
-                    // Timer Slider
-                    VStack(alignment: .leading) {
-                        Text("Send every \(Int(section.startMinutes)) to \(Int(section.endMinutes)) minutes")
-                            .font(.subheadline)
+                    VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading) {
+                            Text("Send every \(Int(section.startMinutes)) to \(Int(section.endMinutes)) minutes")
+                                .font(.subheadline)
 
-                        DualSlider(
-                            startValue: $section.startMinutes,
-                            endValue: $section.endMinutes,
-                            minimumValue: 0,
-                            maximumValue: 45
-                        )
-                    }
+                            DualSlider(
+                                startValue: $section.startMinutes,
+                                endValue: $section.endMinutes,
+                                minimumValue: 0,
+                                maximumValue: 45
+                            )
+                        }
 
-                    // From Dropdown
-                    HStack {
-                        Text("From")
-                            .font(.subheadline)
-                        Picker("From", selection: $section.selectedFromOption) {
-                            ForEach(fromOptions, id: \.self) { option in
-                                Text("\(emojiFor(option)) \(option)")
-                                    .tag(option)
+                        HStack {
+                            Text("From")
+                                .font(.subheadline)
+
+                            Picker("From", selection: $section.selectedFromOption) {
+                                ForEach(fromOptions, id: \.self) { option in
+                                    Text("\(emojiFor(option)) \(option)")
+                                        .tag(option)
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
+
+                            Spacer()
+
+                            Button(action: {
+                                showingSettings = true
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "gear")
+                                        .resizable()
+                                        .frame(width: 16, height: 16)
+                                    Text("Edit")
+                                        .font(.footnote)
+                                        .foregroundColor(.blue)
+                                }
                             }
                         }
-                        .pickerStyle(MenuPickerStyle())
+                        .sheet(isPresented: $showingSettings) {
+                            SettingsView(category: section.selectedFromOption)
+                        }
                     }
 
                     Divider()
 
-                    // Sound Dropdown
                     HStack {
                         Text("Sound")
                             .font(.subheadline)
@@ -97,7 +117,6 @@ struct NotificationSectionView: View {
 
                     Divider()
 
-                    // Emoji Radio Buttons
                     HStack {
                         Text("Emojis")
                             .font(.subheadline)
@@ -116,7 +135,6 @@ struct NotificationSectionView: View {
                                                     .fill(section.selectedEmoji == emoji ? Color.blue : Color.clear)
                                                     .frame(width: 10, height: 10)
                                             )
-
                                         Text(emoji)
                                             .foregroundColor(.primary)
                                     }

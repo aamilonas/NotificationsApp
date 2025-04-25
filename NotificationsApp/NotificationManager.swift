@@ -25,25 +25,36 @@ class NotificationManager: ObservableObject {
 
     func startNotifications(for section: NotificationSection) {
         stopNotification(for: section.id)
-        scheduleNotification(for: section)
 
-        let interval = getRandomInterval(section: section)
-        let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+        // Schedule the first notification shortly after starting
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.scheduleNotification(for: section)
+        }
+
+        // Start a repeating timer
+        let timer = Timer.scheduledTimer(withTimeInterval: getRandomInterval(section: section), repeats: true) { [weak self] _ in
             self?.scheduleNotification(for: section)
         }
-        timers[section.id] = timer
+
+        RunLoop.main.add(timer, forMode: .common)
+
+        // ✅ Store the timer to allow stopping it
+        self.timers[section.id] = timer
     }
 
-    private func stopNotification(for id: Int) {
+
+
+    func stopNotification(for id: Int) {
         timers[id]?.invalidate()
         timers.removeValue(forKey: id)
     }
 
     private func getRandomInterval(section: NotificationSection) -> TimeInterval {
-        let min = section.startMinutes * 60
-        let max = section.endMinutes * 60
+        let min = max(1, section.startMinutes * 60)
+        let max = max(min + 1, section.endMinutes * 60)
         return TimeInterval.random(in: min...max)
     }
+
 
     func stopAllNotifications() {
         timers.values.forEach { $0.invalidate() }
@@ -63,7 +74,7 @@ class NotificationManager: ObservableObject {
             content.body = NotificationData.getMessage(for: section.selectedFromOption, emojiLevel: section.selectedEmoji)
         }
 
-
+        // Sound
         switch section.selectedSound {
         case "iMessage": content.sound = UNNotificationSound(named: UNNotificationSoundName("iMessage.wav"))
         case "Tinder": content.sound = UNNotificationSound(named: UNNotificationSoundName("Tinder.wav"))
@@ -81,4 +92,5 @@ class NotificationManager: ObservableObject {
             }
         }
     }
+
 }

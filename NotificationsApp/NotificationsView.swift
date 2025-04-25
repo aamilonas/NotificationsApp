@@ -1,4 +1,3 @@
-// ✅ NotificationsView.swift
 import SwiftUI
 
 struct NotificationsView: View {
@@ -9,7 +8,6 @@ struct NotificationsView: View {
 
     var body: some View {
         VStack {
-            // Header Box
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.black)
@@ -42,8 +40,11 @@ struct NotificationsView: View {
                             section: $notifications[index],
                             isDisabled: notificationManager.isPlaying,
                             onRemove: {
+                                let removedID = notifications[index].id
+                                NotificationManager.shared.stopNotification(for: removedID) // 🛑 stop this timer
                                 notifications.remove(at: index)
-                                // Re-index after deletion
+
+                                // Reassign IDs to maintain consistency
                                 for i in 0..<notifications.count {
                                     notifications[i].id = i
                                 }
@@ -68,7 +69,7 @@ struct NotificationsView: View {
                     .padding()
                 }
                 .padding()
-                .padding(.bottom, 100) // Avoid overlap with play button
+                .padding(.bottom, 100)
             }
         }
         .onDisappear {
@@ -77,3 +78,4 @@ struct NotificationsView: View {
         }
     }
 }
+
