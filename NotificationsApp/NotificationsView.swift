@@ -1,38 +1,30 @@
-//
-//  NotificationsView.swift
-//  NotificationsApp
-//
-//  Created by Angelo Milonas on 4/20/25.
-//
+// ✅ NotificationsView.swift
 import SwiftUI
 
 struct NotificationsView: View {
-    @State private var notifications: [NotificationSection] = [
-        NotificationSection(id: 0, isExpanded: true),
-        NotificationSection(id: 1, isExpanded: false)
-    ]
-    
+    @Binding var notifications: [NotificationSection]
+    var isPlaying: Bool
+
+    @StateObject private var notificationManager = NotificationManager.shared
+
     var body: some View {
-        
         VStack {
+            // Header Box
             ZStack {
-                // Black shadow layer (bottom)
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.black)
                     .offset(x: 4, y: 4)
                     .frame(width: 353, height: 64)
-                
-                // Gray background layer (top)
+
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(.systemGray5))
                     .frame(width: 353, height: 64)
-                
-                // Content: Text + Icon
+
                 HStack(spacing: 8) {
-                    Text("Fake Notifications ")
+                    Text("Fake Notifications")
                         .font(.system(size: 28))
                         .fontWeight(.bold)
-                    
+
                     Image(systemName: "bubble.left")
                         .resizable()
                         .scaledToFit()
@@ -42,37 +34,46 @@ struct NotificationsView: View {
                 .padding(.vertical, 12)
             }
             .padding(.bottom, 10)
-            
-            NavigationView {
-                ScrollView {
-                    VStack(spacing: 20) {
-                        ForEach(notifications.indices, id: \.self) { index in
-                            NotificationSectionView(
-                                section: $notifications[index],
-                                onRemove: {
-                                    notifications.remove(at: index)
+
+            ScrollView {
+                VStack(spacing: 20) {
+                    ForEach(notifications.indices, id: \.self) { index in
+                        NotificationSectionView(
+                            section: $notifications[index],
+                            isDisabled: notificationManager.isPlaying,
+                            onRemove: {
+                                notifications.remove(at: index)
+                                // Re-index after deletion
+                                for i in 0..<notifications.count {
+                                    notifications[i].id = i
                                 }
-                            )
-                            
-                            if index < notifications.count - 1 {
-                                Divider()
-                                    .frame(height: 1)
-                                    .background(Color.gray.opacity(0.3))
                             }
+                        )
+
+                        if index < notifications.count - 1 {
+                            Divider()
+                                .frame(height: 1)
+                                .background(Color.gray.opacity(0.3))
                         }
-                        
-                        Button(action: {
-                            notifications.append(NotificationSection(id: notifications.count, isExpanded: true))
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.system(size: 44))
-                                .foregroundColor(.blue)
-                        }
-                        .padding()
+                    }
+
+                    Button(action: {
+                        let newID = notifications.count
+                        notifications.append(NotificationSection(id: newID, isExpanded: true))
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 44))
+                            .foregroundColor(.blue)
                     }
                     .padding()
                 }
+                .padding()
+                .padding(.bottom, 100) // Avoid overlap with play button
             }
+        }
+        .onDisappear {
+            notificationManager.stopAllNotifications()
+            notificationManager.isPlaying = false
         }
     }
 }

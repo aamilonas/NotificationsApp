@@ -2,30 +2,45 @@ import SwiftUI
 import AVFoundation
 
 struct ContentView: View {
-    @State private var isPlaying = false
+    @StateObject private var notificationManager = NotificationManager.shared
     @State private var player: AVAudioPlayer?
+    @State private var notifications: [NotificationSection] = [
+        NotificationSection(id: 0, isExpanded: true),
+        //NotificationSection(id: 1, isExpanded: false)
+    ]
 
     var body: some View {
+        
         ZStack(alignment: .bottom) {
             // Main screen
-            NotificationsView()
+            NotificationsView(notifications: $notifications, isPlaying: notificationManager.isPlaying)
 
             // Play/Stop toggle button
             Button(action: {
                 withAnimation(.spring()) {
-                    isPlaying.toggle()
-                    playSound(named: isPlaying ? "play" : "stop")
+                    notificationManager.isPlaying.toggle()
+                    playSound(named: notificationManager.isPlaying ? "start" : "stop")
+
+                    
+                    if notificationManager.isPlaying {
+                        // Start notifications for all sections
+                        for section in notifications {
+                            notificationManager.startNotifications(for: section)
+                        }
+                    } else {
+                        notificationManager.stopAllNotifications()
+                    }
                 }
             }) {
                 HStack {
-                    Image(systemName: isPlaying ? "stop.fill" : "play.fill")
+                    Image(systemName: notificationManager.isPlaying ? "stop.fill" : "play.fill")
                         .foregroundColor(.white)
-                    Text(isPlaying ? "STOP" : "Play")
+                    Text(notificationManager.isPlaying ? "STOP" : "Play")
                         .foregroundColor(.white)
                         .fontWeight(.semibold)
                 }
                 .frame(width: 323, height: 48)
-                .background(isPlaying ? Color.red : Color.green)
+                .background(notificationManager.isPlaying ? Color.red : Color.green)
                 .cornerRadius(24)
                 .shadow(radius: 5)
             }
@@ -34,7 +49,7 @@ struct ContentView: View {
         .ignoresSafeArea(edges: .bottom)
     }
 
-    // Sound playback logic (optional)
+    // Sound playback logic
     func playSound(named name: String) {
         if let url = Bundle.main.url(forResource: name, withExtension: "mp3") {
             do {
