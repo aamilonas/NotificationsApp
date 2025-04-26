@@ -17,7 +17,7 @@ struct NotificationSectionView: View {
 
     @State private var showingSettings = false
 
-    let fromOptions = ["Women", "Men", "Women (Friends)", "Men (Friends)", "Jealous Ex (Woman)", "Jealous Ex (Man)"]
+    let fromOptions = ["Women", "Men", "Women (Friends)", "Men (Friends)", "Jealous Ex", "Group Chat"]
     let soundOptions = ["iMessage", "Tinder", "Instagram", "Snapchat"]
     let emojiOptions = ["Off", "Med", "High"]
 
@@ -172,8 +172,8 @@ Spacer()
         case "Men": return "👨"
         case "Women (Friends)": return "🙋‍♀️"
         case "Men (Friends)": return "🙋‍♂️"
-        case "Jealous Ex (Woman)": return "👿"
-        case "Jealous Ex (Man)": return "👿"
+        case "Jealous Ex": return "👿"
+        case "Group Chat": return "❇️"
         default: return ""
         }
     }
