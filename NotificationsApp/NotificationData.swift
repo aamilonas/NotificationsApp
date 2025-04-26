@@ -102,9 +102,9 @@ struct NotificationData {
     static func getDefaultNames(for category: String) -> [String] {
         switch category {
         case "Women", "Women (Friends)":
-            return ["Emma", "Olivia", "Sophia", "Isabella", "Ava"]
+            return ["Emma", "Hannah", "Isabella", "Ava"]
         case "Men", "Men (Friends)":
-            return ["Liam", "Noah", "Oliver", "Elijah", "James"]
+            return ["Dan", "Noah", "Oliver", "James"]
         case "Mostly Women":
             return ["Sarah", "Jessica", "Ashley", "Jennifer", "Rachel"]
         case "Mostly Men":

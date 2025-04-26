@@ -12,7 +12,9 @@ struct NotificationsAppApp: App {
     //forces light mode
     
     init() {
-        UIView.appearance().overrideUserInterfaceStyle = .light
+        UIView.appearance().overrideUserInterfaceStyle = .dark
+        
+        UIView.appearance().tintColor = UIColor.systemPink
         // Register fonts
         if let fontURL = Bundle.main.url(forResource: "YourFontName", withExtension: "otf") {
             CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, nil)

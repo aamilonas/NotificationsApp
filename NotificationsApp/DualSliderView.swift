@@ -21,7 +21,7 @@ struct DualSlider: View {
                     .frame(height: 4)
                 
                 Rectangle()
-                    .fill(Color.blue)
+                    .fill(Color.pink)
                     .frame(width: CGFloat((endValue - startValue) / (maximumValue - minimumValue)) * geometry.size.width,
                            height: 4)
                     .offset(x: CGFloat((startValue - minimumValue) / (maximumValue - minimumValue)) * geometry.size.width)

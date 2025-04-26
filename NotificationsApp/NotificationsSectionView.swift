@@ -70,7 +70,7 @@ struct NotificationSectionView: View {
                         }
 
                         HStack {
-                            Text("From")
+                            Text("From:")
                                 .font(.subheadline)
 
                             Picker("From", selection: $section.selectedFromOption) {
@@ -92,7 +92,7 @@ struct NotificationSectionView: View {
                                         .frame(width: 16, height: 16)
                                     Text("Edit")
                                         .font(.footnote)
-                                        .foregroundColor(.blue)
+                                        .foregroundColor(.pink)
                                 }
                             }
                         }
@@ -104,7 +104,7 @@ struct NotificationSectionView: View {
                     Divider()
 
                     HStack {
-                        Text("Sound")
+                        Text("Sound:")
                             .font(.subheadline)
                         Picker("Sound", selection: $section.selectedSound) {
                             ForEach(soundOptions, id: \.self) { option in
@@ -117,10 +117,11 @@ struct NotificationSectionView: View {
 
                     Divider()
 
+                    // ➡️ EMOJIS
                     HStack {
-                        Text("Emojis")
+                        Text("Emojis:")
                             .font(.subheadline)
-
+Spacer()
                         HStack(spacing: 20) {
                             ForEach(emojiOptions, id: \.self) { emoji in
                                 Button(action: {
@@ -128,11 +129,11 @@ struct NotificationSectionView: View {
                                 }) {
                                     HStack(spacing: 6) {
                                         Circle()
-                                            .stroke(section.selectedEmoji == emoji ? Color.blue : Color.gray, lineWidth: 2)
+                                            .stroke(section.selectedEmoji == emoji ? Color.pink : Color.gray, lineWidth: 2)
                                             .frame(width: 20, height: 20)
                                             .overlay(
                                                 Circle()
-                                                    .fill(section.selectedEmoji == emoji ? Color.blue : Color.clear)
+                                                    .fill(section.selectedEmoji == emoji ? Color.pink : Color.clear)
                                                     .frame(width: 10, height: 10)
                                             )
                                         Text(emoji)
@@ -142,7 +143,10 @@ struct NotificationSectionView: View {
                                 .buttonStyle(PlainButtonStyle())
                             }
                         }
+                        
+                        Spacer()
                     }
+
 
                     Divider()
 
