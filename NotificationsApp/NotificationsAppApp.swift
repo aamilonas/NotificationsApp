@@ -1,31 +1,16 @@
-//
-//  NotificationsAppApp.swift
-//  NotificationsApp
-//
-//  Created by Angelo Milonas on 4/20/25.
-//
-
 import SwiftUI
 
 @main
 struct NotificationsAppApp: App {
-    //forces light mode
-    
     init() {
         UIView.appearance().overrideUserInterfaceStyle = .dark
-        
         UIView.appearance().tintColor = UIColor.systemPink
-        // Register fonts
-        if let fontURL = Bundle.main.url(forResource: "YourFontName", withExtension: "otf") {
-            CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, nil)
-        }
     }
-    
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(\.font, .custom("WorkSans", size: 18))
+                //*environment(\.font, .custom("WorkSans", size:*/ 18)) // This line is fine if "WorkSans" exists, otherwise you'll need fallback too.
         }
     }
 }

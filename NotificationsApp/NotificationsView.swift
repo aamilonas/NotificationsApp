@@ -15,11 +15,20 @@ struct NotificationsView: View {
 
             // 🔹 Logo
             VStack {
-                Image("notifai_red")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 350, height: 230)
-                    .padding(.top, -45)
+                if let uiImage = UIImage(named: "notifai_red") {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 350, height: 230)
+                        .padding(.top, -45)
+                } else {
+                    Text("NotifAI")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(.pink)
+                        .padding(.top, 40)
+                }
+
+                
                 Spacer()
             }
 
