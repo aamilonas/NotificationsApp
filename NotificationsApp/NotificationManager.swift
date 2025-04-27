@@ -1,4 +1,3 @@
-// ✅ NotificationManager.swift
 import Foundation
 import UserNotifications
 
@@ -25,41 +24,40 @@ class NotificationManager: ObservableObject {
 
     func startNotifications(for section: NotificationSection) {
         stopNotification(for: section.id)
+        scheduleNextNotification(for: section)
+    }
 
-        // Schedule the first notification shortly after starting
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.scheduleNotification(for: section)
-        }
+    private func scheduleNextNotification(for section: NotificationSection) {
+        let randomInterval = getRandomInterval(section: section)
 
-        // Start a repeating timer
-        let timer = Timer.scheduledTimer(withTimeInterval: getRandomInterval(section: section), repeats: true) { [weak self] _ in
-            self?.scheduleNotification(for: section)
+        let timer = Timer.scheduledTimer(withTimeInterval: randomInterval, repeats: false) { [weak self] _ in
+            guard let self = self else { return }
+
+            self.scheduleNotification(for: section) // 🔥 Send the notification
+            self.scheduleNextNotification(for: section) // 🔥 Schedule next random notification
         }
 
         RunLoop.main.add(timer, forMode: .common)
+        timers[section.id] = timer
 
-        // ✅ Store the timer to allow stopping it
-        self.timers[section.id] = timer
+        print("📩 [DEBUG] Scheduled notification for section \(section.id) in \(String(format: "%.1f", randomInterval)) seconds")
     }
-
-
 
     func stopNotification(for id: Int) {
         timers[id]?.invalidate()
         timers.removeValue(forKey: id)
     }
 
-    private func getRandomInterval(section: NotificationSection) -> TimeInterval {
-        let min = max(1, section.startMinutes * 60)
-        let max = max(min + 1, section.endMinutes * 60)
-        return TimeInterval.random(in: min...max)
-    }
-
-
     func stopAllNotifications() {
         timers.values.forEach { $0.invalidate() }
         timers.removeAll()
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    }
+
+    private func getRandomInterval(section: NotificationSection) -> TimeInterval {
+        let minSeconds = max(1, section.startMinutes * 60)
+        let maxSeconds = max(minSeconds + 1, section.endMinutes * 60)
+        return TimeInterval.random(in: minSeconds...maxSeconds)
     }
 
     private func scheduleNotification(for section: NotificationSection) {
@@ -74,13 +72,17 @@ class NotificationManager: ObservableObject {
             content.body = NotificationData.getMessage(for: section.selectedFromOption, emojiLevel: section.selectedEmoji)
         }
 
-        // Sound
         switch section.selectedSound {
-        case "iMessage": content.sound = UNNotificationSound(named: UNNotificationSoundName("iMessage.wav"))
-        case "Tinder": content.sound = UNNotificationSound(named: UNNotificationSoundName("Tinder.wav"))
-        case "Instagram": content.sound = UNNotificationSound(named: UNNotificationSoundName("Instagram.wav"))
-        case "Snapchat": content.sound = UNNotificationSound(named: UNNotificationSoundName("Snapchat.wav"))
-        default: content.sound = .default
+        case "iMessage":
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("iMessage.wav"))
+        case "Tinder":
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("Tinder.wav"))
+        case "Instagram":
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("Instagram.wav"))
+        case "Snapchat":
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("Snapchat.wav"))
+        default:
+            content.sound = .default
         }
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
@@ -92,5 +94,4 @@ class NotificationManager: ObservableObject {
             }
         }
     }
-
 }

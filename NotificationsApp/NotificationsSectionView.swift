@@ -17,7 +17,7 @@ struct NotificationSectionView: View {
 
     @State private var showingSettings = false
 
-    let fromOptions = ["Women", "Men", "Women (Friends)", "Men (Friends)", "Jealous Ex", "Group Chat"]
+    let fromOptions = ["Women", "Men", "Women (Friends)", "Men (Friends)", "Jealous Ex (Man)", "Jealous Ex (Woman)","Group Chat"]
     let soundOptions = ["iMessage", "Tinder", "Instagram", "Snapchat"]
     let emojiOptions = ["Off", "Med", "High"]
 
