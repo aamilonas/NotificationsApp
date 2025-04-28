@@ -22,25 +22,24 @@ class NotificationManager: ObservableObject {
         }
     }
 
-    func startNotifications(for section: NotificationSection) {
-        stopNotification(for: section.id)
-        scheduleNextNotification(for: section)
-    }
+    func startNotifications(for sections: [NotificationSection]) {
+        stopAllNotifications()
 
-    private func scheduleNextNotification(for section: NotificationSection) {
-        let randomInterval = getRandomInterval(section: section)
+        for section in sections {
+            var baseTime = Date()
 
-        let timer = Timer.scheduledTimer(withTimeInterval: randomInterval, repeats: false) { [weak self] _ in
-            guard let self = self else { return }
+            for _ in 0..<section.quantity {
+                let randomInterval = getRandomInterval(section: section)
+                baseTime = baseTime.addingTimeInterval(randomInterval)
+                let secondsFromNow = baseTime.timeIntervalSinceNow
 
-            self.scheduleNotification(for: section) // 🔥 Send the notification
-            self.scheduleNextNotification(for: section) // 🔥 Schedule next random notification
+                if secondsFromNow > 0 {
+                    scheduleNotification(for: section, in: secondsFromNow)
+                }
+            }
         }
 
-        RunLoop.main.add(timer, forMode: .common)
-        timers[section.id] = timer
-
-        print("📩 [DEBUG] Scheduled notification for section \(section.id) in \(String(format: "%.1f", randomInterval)) seconds")
+        isPlaying = true
     }
 
     func stopNotification(for id: Int) {
@@ -60,7 +59,7 @@ class NotificationManager: ObservableObject {
         return TimeInterval.random(in: minSeconds...maxSeconds)
     }
 
-    private func scheduleNotification(for section: NotificationSection) {
+    private func scheduleNotification(for section: NotificationSection, in delay: TimeInterval) {
         let content = UNMutableNotificationContent()
 
         if section.selectedSound == "Tinder" {
@@ -69,7 +68,7 @@ class NotificationManager: ObservableObject {
         } else {
             let names = NotificationData.getNames(for: section.selectedFromOption)
             content.title = names.randomElement() ?? "Unknown"
-            content.body = NotificationData.getMessage(for: section.selectedFromOption, emojiLevel: section.selectedEmoji)
+            content.body = NotificationData.getMessage(for: section.selectedFromOption)
         }
 
         switch section.selectedSound {
@@ -85,7 +84,7 @@ class NotificationManager: ObservableObject {
             content.sound = .default
         }
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in
@@ -93,5 +92,7 @@ class NotificationManager: ObservableObject {
                 print("⚠️ Notification error: \(error)")
             }
         }
+
+        print("📩 [DEBUG] Scheduled notification for section \(section.id) in \(String(format: "%.1f", delay)) seconds")
     }
 }

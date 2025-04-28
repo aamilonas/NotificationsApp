@@ -5,8 +5,7 @@ struct NotificationData {
     static let menNames = ["Dan", "Noah", "Oliver", "James"]
     static let mostlyWomenNames = ["Sarah", "Jessica", "Ashley", "Jennifer", "Rachel"]
     static let mostlyMenNames = ["Michael", "Christopher", "Matthew", "Andrew", "Joseph"]
-    static let jealousExWomenNames = ["Sara ❌❌❌❌"]
-    static let jealousExMenNames = ["Mike ❌❌❌❌"]
+    static let jealousExNames = ["Alex ❌❌❌❌"]
     static let groupChatNames = ["The homies ❤️‍🔥"]
 
     static let friendMessagesWomen = [
@@ -268,11 +267,7 @@ struct NotificationData {
 
 
     // Emojis
-    static let flirtyEmojisWomen = ["🥰", "💕", "💖", "😍", "💘", "😘", "💓", "🌷", "✨"]
-    static let flirtyEmojisMen = ["😏", "🔥", "❤️", "😎", "💪", "😉", "👀", "💥", "🤤", "🏹"]
-    static let friendEmojisWomen = ["😊", "🌟", "🥰", "💕", "🎀", "🌈", "🍀", "💫", "🎉", "📚"]
-    static let friendEmojisMen = ["👊", "😎", "🤙", "🏀", "🍻", "🎮", "⚡️", "🎉", "🏆", "💬"]
-    static let jealousExEmojis = ["💔", "😭", "😢", "🥺", "😔", "😞", "😩", "💭", "📩", "📞"]
+    
 
     static func getNames(for category: String) -> [String] {
         let key: String
@@ -281,8 +276,8 @@ struct NotificationData {
         case "Men": key = "MenNames"
         case "Women (Friends)": key = "WomenFriendNames"
         case "Men (Friends)": key = "MenFriendNames"
-        case "Jealous Ex (Woman)": key = "JealousExWomen"
-        case "Jealous Ex (Man)": key = "JealousExMen"
+        case "Jealous Ex": key = "JealousEx"
+        case "Group Chat": key = "groupChatNames"
         default: return []
         }
 
@@ -293,48 +288,33 @@ struct NotificationData {
         switch category {
         case "Women", "Women (Friends)": return womenNames
         case "Men", "Men (Friends)": return menNames
-        case "Jealous Ex (Woman)": return jealousExWomenNames
-        case "Jealous Ex (Man)": return jealousExMenNames
+        case "Jealous Ex": return jealousExNames
         default:
             return []
         }
     }
 
-    static func getMessage(for category: String, emojiLevel: String) -> String {
+    static func getMessage(for category: String) -> String {
         let messages: [String]
-        let emojis: [String]
 
         switch category {
         case "Women (Friends)":
             messages = friendMessagesWomen
-            emojis = emojiLevel == "Med" ? friendEmojisWomen : (emojiLevel == "High" ? friendEmojisWomen : [])
         case "Men (Friends)", "Group Chat":
             messages = friendMessagesMen
-            emojis = emojiLevel == "Med" ? friendEmojisMen : (emojiLevel == "High" ? friendEmojisMen : [])
         case "Women":
             messages = flirtyMessages
-            emojis = emojiLevel == "Med" ? flirtyEmojisWomen : (emojiLevel == "High" ? flirtyEmojisWomen : [])
         case "Men":
             messages = flirtyMessages
-            emojis = emojiLevel == "Med" ? flirtyEmojisMen : (emojiLevel == "High" ? flirtyEmojisMen : [])
         case "Jealous Ex (Man)", "Jealous Ex (Woman)":
             messages = jealousExMessages
-            emojis = emojiLevel == "Med" ? jealousExEmojis : (emojiLevel == "High" ? jealousExEmojis : [])
         default:
             messages = flirtyMessages
-            emojis = []
         }
 
-        var message = messages.randomElement() ?? "Hello"
-        if !emojis.isEmpty {
-            if emojiLevel == "Med" {
-                message += " " + emojis.shuffled().prefix(2).joined(separator: " ")
-            } else if emojiLevel == "High" {
-                message += " " + Array(repeating: emojis.randomElement() ?? "", count: 4).joined(separator: " ")
-            }
-        }
-        return message
+        return messages.randomElement() ?? "Hello"
     }
+
 
     static func getDefaultNames(for category: String) -> [String] {
         switch category {

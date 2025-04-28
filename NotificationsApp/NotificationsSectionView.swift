@@ -7,7 +7,7 @@ struct NotificationSection: Identifiable {
     var endMinutes: Double = 15
     var selectedFromOption = "Women"
     var selectedSound = "iMessage"
-    var selectedEmoji = "Off"
+    var quantity: Int = 10
 }
 
 struct NotificationSectionView: View {
@@ -17,7 +17,7 @@ struct NotificationSectionView: View {
 
     @State private var showingSettings = false
 
-    let fromOptions = ["Women", "Men", "Women (Friends)", "Men (Friends)", "Jealous Ex (Man)", "Jealous Ex (Woman)","Group Chat"]
+    let fromOptions = ["Women", "Men", "Women (Friends)", "Men (Friends)", "Jealous Ex","Group Chat"]
     let soundOptions = ["iMessage", "Tinder", "Instagram", "Snapchat"]
     let emojiOptions = ["Off", "Med", "High"]
 
@@ -117,37 +117,20 @@ struct NotificationSectionView: View {
 
                     Divider()
 
-                    // ➡️ EMOJIS
                     HStack {
-                        Text("Emojis:")
+                        Text("Quantity:")
                             .font(.subheadline)
-Spacer()
-                        HStack(spacing: 20) {
-                            ForEach(emojiOptions, id: \.self) { emoji in
-                                Button(action: {
-                                    section.selectedEmoji = emoji
-                                }) {
-                                    HStack(spacing: 6) {
-                                        Circle()
-                                            .stroke(section.selectedEmoji == emoji ? Color.pink : Color.gray, lineWidth: 2)
-                                            .frame(width: 20, height: 20)
-                                            .overlay(
-                                                Circle()
-                                                    .fill(section.selectedEmoji == emoji ? Color.pink : Color.clear)
-                                                    .frame(width: 10, height: 10)
-                                            )
-                                        Text(emoji)
-                                            .foregroundColor(.primary)
-                                    }
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                        }
                         
                         Spacer()
+                        
+                        Picker("Quantity", selection: $section.quantity) {
+                            ForEach(1..<51) { number in
+                                Text("\(number)").tag(number)
+                            }
+                        }
+                        .pickerStyle(WheelPickerStyle())
+                        .frame(width: 100, height: 80)
                     }
-
-
                     Divider()
 
                     Button("Remove Section") {
