@@ -7,10 +7,11 @@ struct NotificationData {
     static let mostlyMenNames = ["Michael", "Christopher", "Matthew", "Andrew", "Joseph"]
     static let jealousExNames = ["Alex ❌❌❌❌"]
     static let groupChatNames = ["The homies ❤️‍🔥"]
+    static let groupMemberNames = ["Riley","Casey","Alex","The Fist","Dinglebob"]
 
     static let friendMessagesWomen = [
         "Hey! Just checking in.", "Let’s hang soon!", "Hope you’re doing well.", "How’s your day going?",
-        "You’ve been on my mind lately.", "Wanna catch up this week?", "It’s been too long!", "I saw something that reminded me of you.",
+        "Was just thinking about u", "Wanna catch up this week?", "It’s been too long!", "I saw something that reminded me of you.",
         "You always know how to cheer me up!", "Hope everything’s okay 💛", "What are you watching lately?",
         "Thinking about our last coffee run ☕️", "You always give the best advice!", "Can I vent to you later?",
         "You’re one of my favorite people.", "Let’s plan a chill night soon.", "Are you free to talk for a bit?",

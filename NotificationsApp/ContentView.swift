@@ -23,13 +23,11 @@ struct ContentView: View {
 
                     
                     if notificationManager.isPlaying {
-                        // Start notifications for all sections
-                        for section in notifications {
-                            notificationManager.startNotifications(for: section)
-                        }
+                        notificationManager.startNotifications(for: notifications)
                     } else {
                         notificationManager.stopAllNotifications()
                     }
+
                 }
             }) {
                 HStack {

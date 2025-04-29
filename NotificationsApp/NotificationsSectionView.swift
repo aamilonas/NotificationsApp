@@ -8,6 +8,7 @@ struct NotificationSection: Identifiable {
     var selectedFromOption = "Women"
     var selectedSound = "iMessage"
     var quantity: Int = 10
+    var completed: Bool = false
 }
 
 struct NotificationSectionView: View {
@@ -22,6 +23,7 @@ struct NotificationSectionView: View {
     let emojiOptions = ["Off", "Med", "High"]
 
     var body: some View {
+        
         let _ = {
             if isDisabled && section.isExpanded {
                 section.isExpanded = false
@@ -34,13 +36,15 @@ struct NotificationSectionView: View {
                     .font(.system(size: 24, weight: .bold))
 
                 if isDisabled {
-                    Text("Running")
+                    let label = section.completed ? "Finished" : "Running"
+                    Text(label)
                         .font(.subheadline)
-                        .foregroundColor(.green)
+                        .foregroundColor(section.completed ? .yellow : .green)
                         .padding(.leading, 8)
                         .transition(.opacity)
                         .animation(.easeInOut(duration: 0.3), value: isDisabled)
                 }
+
 
                 Spacer()
 
@@ -118,7 +122,7 @@ struct NotificationSectionView: View {
                     Divider()
 
                     HStack {
-                        Text("Quantity:")
+                        Text("Number of Notifications:")
                             .font(.subheadline)
                         
                         Spacer()
