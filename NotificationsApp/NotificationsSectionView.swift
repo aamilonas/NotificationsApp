@@ -9,6 +9,8 @@ struct NotificationSection: Identifiable {
     var selectedSound = "iMessage"
     var quantity: Int = 10
     var completed: Bool = false
+    var notificationsRemaining: Int = 0
+
 }
 
 struct NotificationSectionView: View {
