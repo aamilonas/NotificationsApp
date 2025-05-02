@@ -21,7 +21,7 @@ struct NotificationSectionView: View {
     @State private var showingSettings = false
 
     let fromOptions = ["Women", "Men", "Women (Friends)", "Men (Friends)", "Jealous Ex","Group Chat"]
-    let soundOptions = ["iMessage", "Tinder", "Instagram", "Snapchat"]
+    let soundOptions = ["Message Pop", "LoveMatch", "GramPing", "SnapTone"]
     let emojiOptions = ["Off", "Med", "High"]
 
     var body: some View {
@@ -169,10 +169,10 @@ struct NotificationSectionView: View {
 
     private func emojiForSound(_ option: String) -> String {
         switch option {
-        case "iMessage": return "💬"
-        case "Tinder": return "❣️"
-        case "Instagram": return "📸"
-        case "Snapchat": return "👻"
+        case "Message Pop": return "💬"
+        case "LoveMatch": return "❣️"
+        case "GramPing": return "📸"
+        case "SnapTone": return "👻"
         case "Hinge": return "☁️"
         default: return ""
         }

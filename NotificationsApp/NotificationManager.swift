@@ -73,7 +73,7 @@ class NotificationManager: ObservableObject {
         let content = UNMutableNotificationContent()
 
         if section.selectedSound == "Tinder" {
-            content.title = "Tinder"
+            content.title = "LoveMatch"
             content.body = "You got a new match! 😍😍😍"
         } else if section.selectedFromOption == "Group Chat" {
             let member = NotificationData.groupMemberNames.randomElement() ?? "Someone"
@@ -87,13 +87,13 @@ class NotificationManager: ObservableObject {
         }
 
         switch section.selectedSound {
-        case "iMessage":
+        case "Message Pop":
             content.sound = UNNotificationSound(named: UNNotificationSoundName("iMessage.wav"))
-        case "Tinder":
+        case "LoveMatch":
             content.sound = UNNotificationSound(named: UNNotificationSoundName("Tinder.wav"))
-        case "Instagram":
+        case "GramPing":
             content.sound = UNNotificationSound(named: UNNotificationSoundName("Instagram.wav"))
-        case "Snapchat":
+        case "SnapTone":
             content.sound = UNNotificationSound(named: UNNotificationSoundName("Snapchat.wav"))
         default:
             content.sound = .default
@@ -121,8 +121,8 @@ class NotificationManager: ObservableObject {
     private func scheduleNotification(for section: NotificationSection) {
         let content = UNMutableNotificationContent()
 
-        if section.selectedSound == "Tinder" {
-            content.title = "Tinder"
+        if section.selectedSound == "LoveMatch" {
+            content.title = "LoveMatch"
             content.body = "You got a new match! 😍😍😍"
         } else if section.selectedFromOption == "Group Chat" {
             let member = NotificationData.groupMemberNames.randomElement() ?? "Someone"
@@ -136,13 +136,13 @@ class NotificationManager: ObservableObject {
         }
 
         switch section.selectedSound {
-        case "iMessage":
+        case "Message Pop":
             content.sound = UNNotificationSound(named: UNNotificationSoundName("iMessage.wav"))
-        case "Tinder":
+        case "LoveMatch":
             content.sound = UNNotificationSound(named: UNNotificationSoundName("Tinder.wav"))
-        case "Instagram":
+        case "GramPing":
             content.sound = UNNotificationSound(named: UNNotificationSoundName("Instagram.wav"))
-        case "Snapchat":
+        case "SnapTone":
             content.sound = UNNotificationSound(named: UNNotificationSoundName("Snapchat.wav"))
         default:
             content.sound = .default
