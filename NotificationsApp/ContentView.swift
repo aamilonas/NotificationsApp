@@ -2,34 +2,40 @@ import SwiftUI
 import AVFoundation
 
 struct ContentView: View {
+    
+    // Subscription state
+    @EnvironmentObject private var subMgr: SubscriptionManager
+    @State private var showPaywall = false
+
+    // Notification state
     @StateObject private var notificationManager = NotificationManager.shared
     @State private var player: AVAudioPlayer?
     @State private var notifications: [NotificationSection] = [
         NotificationSection(id: 0, isExpanded: true),
-        //NotificationSection(id: 1, isExpanded: false)
     ]
 
     var body: some View {
-        
         ZStack(alignment: .bottom) {
-            // Main screen
-            NotificationsView(notifications: $notifications, isPlaying: notificationManager.isPlaying)
+            // Main notifications UI
+            NotificationsView(
+                notifications: $notifications,
+                isPlaying: notificationManager.isPlaying
+            )
 
-            // Play/Stop toggle button
-            Button(action: {
-                withAnimation(.spring()) {
-                    notificationManager.isPlaying.toggle()
-                    playSound(named: notificationManager.isPlaying ? "start" : "stop")
-
-                    
-                    if notificationManager.isPlaying {
-                        notificationManager.startNotifications(for: notifications)
+            // Play / Stop button
+            Button {
+                if notificationManager.isPlaying {
+                    // Currently running → always stop, no popup
+                    toggleAndSchedule()
+                } else {
+                    // Currently stopped → about to play
+                    if !subMgr.isSubscribed {
+                        showPaywall = true
                     } else {
-                        notificationManager.stopAllNotifications()
+                        toggleAndSchedule()
                     }
-
                 }
-            }) {
+            } label: {
                 HStack {
                     Image(systemName: notificationManager.isPlaying ? "stop.fill" : "play.fill")
                         .foregroundColor(.white)
@@ -45,21 +51,61 @@ struct ContentView: View {
             .padding(.bottom, 30)
         }
         .ignoresSafeArea(edges: .bottom)
+
+        // Paywall alert on Play
+        .alert("You are using the notifAI free version!",
+               isPresented: $showPaywall) {
+            Button("Subscribe") {
+                Task {
+                    try? await subMgr.purchase()
+                }
+            }
+            Button("Continue") {
+                // 1) Cap every section to 5 notifications
+                for idx in notifications.indices {
+                    notifications[idx].quantity = 5
+                }
+                // 2) Now actually start
+                toggleAndSchedule()
+            }
+        } message: {
+            Text("""
+                 A maximum of 5 notifications a day can be set. \
+                 Subscribe now for unlimited notifications & all notification sounds.
+                 """)
+        }
     }
 
-    // Sound playback logic
-    func playSound(named name: String) {
-        if let url = Bundle.main.url(forResource: name, withExtension: "mp3") {
-            do {
-                player = try AVAudioPlayer(contentsOf: url)
-                player?.play()
-            } catch {
-                print("Error playing sound: \(error.localizedDescription)")
+    // MARK: – Playback & scheduling
+
+    private func toggleAndSchedule() {
+        withAnimation(.spring()) {
+            notificationManager.isPlaying.toggle()
+            playSound(named: notificationManager.isPlaying ? "start" : "stop")
+
+            if notificationManager.isPlaying {
+                notificationManager.startNotifications(for: notifications)
+            } else {
+                notificationManager.stopAllNotifications()
             }
+        }
+    }
+
+    private func playSound(named name: String) {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "mp3") else {
+            print("🔊 Sound file not found: \(name).mp3")
+            return
+        }
+        do {
+            player = try AVAudioPlayer(contentsOf: url)
+            player?.play()
+        } catch {
+            print("🔊 Error playing sound: \(error.localizedDescription)")
         }
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(SubscriptionManager.shared)
 }

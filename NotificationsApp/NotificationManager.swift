@@ -1,15 +1,43 @@
 // NotificationManager.swift
+
 import Foundation
 import UserNotifications
 
+@MainActor
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
     @Published var isPlaying = false
 
+    // MARK: – Free tier limit
+    private let maxPerDay = 5
+    private var sentTimestamps: [Date] {
+        get { (UserDefaults.standard.array(forKey: "sentTimestamps") as? [Date]) ?? [] }
+        set { UserDefaults.standard.set(newValue, forKey: "sentTimestamps") }
+    }
+
+    
+    private func canScheduleAnother() -> Bool {
+        // Subscribed users bypass the limit
+        if SubscriptionManager.shared.isSubscribed {
+            return true
+        }
+        let cutoff = Date().addingTimeInterval(-24 * 60 * 60)
+        let recent = sentTimestamps.filter { $0 > cutoff }
+        return recent.count < maxPerDay
+    }
+
+    private func recordSend() {
+        let cutoff = Date().addingTimeInterval(-24 * 60 * 60)
+        var recent = sentTimestamps.filter { $0 > cutoff }
+        recent.append(Date())
+        sentTimestamps = recent
+    }
+
+    // MARK: – Notification state
     private var timers: [Int: Timer] = [:]
     @Published var activeSections: [NotificationSection] = []
 
-    init() {
+    private init() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
             if granted {
                 print("✅ Notification permission granted")
@@ -25,6 +53,8 @@ class NotificationManager: ObservableObject {
         }
     }
 
+    // MARK: – Start / Stop
+
     func startNotifications(for sections: [NotificationSection]) {
         stopAllNotifications()
         isPlaying = true
@@ -36,7 +66,6 @@ class NotificationManager: ObservableObject {
             activeSections.append(copy)
 
             var cumulativeDelay: TimeInterval = 0
-
             for i in 1...copy.quantity {
                 let interval = TimeInterval.random(in: copy.startMinutes * 60 ... copy.endMinutes * 60)
                 cumulativeDelay += interval
@@ -45,14 +74,11 @@ class NotificationManager: ObservableObject {
         }
     }
 
-
-
     func stopNotification(for id: Int) {
         timers[id]?.invalidate()
         timers.removeValue(forKey: id)
-
-        if let index = activeSections.firstIndex(where: { $0.id == id }) {
-            activeSections[index].completed = true
+        if let idx = activeSections.firstIndex(where: { $0.id == id }) {
+            activeSections[idx].completed = true
         }
     }
 
@@ -63,16 +89,18 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 
-    private func getRandomInterval(section: NotificationSection) -> TimeInterval {
-        let minSeconds = max(1, section.startMinutes * 60)
-        let maxSeconds = max(minSeconds + 1, section.endMinutes * 60)
-        return TimeInterval.random(in: minSeconds...maxSeconds)
-    }
+    // MARK: – Scheduling
 
     private func scheduleNotification(for section: NotificationSection, after delay: TimeInterval, index: Int) {
-        let content = UNMutableNotificationContent()
+        guard canScheduleAnother() else {
+            print("🔒 Daily limit reached — skipping notification \(index) for section \(section.id)")
+            return
+        }
+        recordSend()
 
-        if section.selectedSound == "Tinder" {
+        let content = UNMutableNotificationContent()
+        // Title & body selection
+        if section.selectedSound == "LoveMatch" {
             content.title = "LoveMatch"
             content.body = "You got a new match! 😍😍😍"
         } else if section.selectedFromOption == "Group Chat" {
@@ -86,15 +114,16 @@ class NotificationManager: ObservableObject {
             content.body = NotificationData.getMessage(for: section.selectedFromOption)
         }
 
+        // Sound selection
         switch section.selectedSound {
-        case "Message Pop":
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("iMessage.wav"))
+        case "MessagePop":
+            content.sound = UNNotificationSound(named: .init("iMessage.wav"))
         case "LoveMatch":
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("Tinder.wav"))
+            content.sound = UNNotificationSound(named: .init("Tinder.wav"))
         case "GramPing":
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("Instagram.wav"))
+            content.sound = UNNotificationSound(named: .init("Instagram.wav"))
         case "SnapTone":
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("Snapchat.wav"))
+            content.sound = UNNotificationSound(named: .init("Snapchat.wav"))
         default:
             content.sound = .default
         }
@@ -107,20 +136,23 @@ class NotificationManager: ObservableObject {
             if let error = error {
                 print("⚠️ Notification error: \(error)")
             } else {
-                let fireTime = Date().addingTimeInterval(delay)
-                let formatter = DateFormatter()
-                formatter.timeStyle = .medium
-                formatter.dateStyle = .none
-                print("📩 [DEBUG] Scheduled notification \(index) for section \(section.id) at \(formatter.string(from: fireTime))")
+                let fire = Date().addingTimeInterval(delay)
+                let fmt = DateFormatter()
+                fmt.dateStyle = .none; fmt.timeStyle = .medium
+                print("📩 Scheduled #\(index) for section \(section.id) at \(fmt.string(from: fire))")
             }
         }
     }
 
-
-
+    // Fallback single-fire scheduler (if used elsewhere)
     private func scheduleNotification(for section: NotificationSection) {
-        let content = UNMutableNotificationContent()
+        guard canScheduleAnother() else {
+            print("🔒 Daily limit reached — skipping immediate notification")
+            return
+        }
+        recordSend()
 
+        let content = UNMutableNotificationContent()
         if section.selectedSound == "LoveMatch" {
             content.title = "LoveMatch"
             content.body = "You got a new match! 😍😍😍"
@@ -136,21 +168,23 @@ class NotificationManager: ObservableObject {
         }
 
         switch section.selectedSound {
-        case "Message Pop":
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("iMessage.wav"))
+        case "MessagePop":
+            content.sound = UNNotificationSound(named: .init("iMessage.wav"))
         case "LoveMatch":
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("Tinder.wav"))
+            content.sound = UNNotificationSound(named: .init("Tinder.wav"))
         case "GramPing":
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("Instagram.wav"))
+            content.sound = UNNotificationSound(named: .init("Instagram.wav"))
         case "SnapTone":
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("Snapchat.wav"))
+            content.sound = UNNotificationSound(named: .init("Snapchat.wav"))
         default:
             content.sound = .default
         }
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
-
+        let request = UNNotificationRequest(
+            identifier: UUID().uuidString,
+            content: content,
+            trigger: UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        )
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
                 print("⚠️ Notification error: \(error)")
