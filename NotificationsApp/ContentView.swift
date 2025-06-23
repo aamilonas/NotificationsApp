@@ -55,7 +55,7 @@ struct ContentView: View {
         // Paywall alert on Play
         .alert("You are using the notifAI free version!",
                isPresented: $showPaywall) {
-            Button("Subscribe") {
+            Button("Subscribe (3.99$)") {
                 Task {
                     try? await subMgr.purchase()
                 }

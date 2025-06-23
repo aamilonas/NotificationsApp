@@ -166,14 +166,14 @@ struct NotificationSectionView: View {
         // Sound paywall alert
         .alert("You are using the free version of NotifAI",
                isPresented: $showSoundPaywall) {
-            Button("Subscribe") {
+            Button("Subscribe (3.99$)") {
                 Task {
                     try? await subMgr.purchase()
                     // once subscribed, allow the pending choice
                     section.selectedSound = pendingSoundSelection
                 }
             }
-            Button("Continue") {
+            Button("Cancel") {
                 // revert to MessagePop
                 section.selectedSound = "MessagePop"
             }
